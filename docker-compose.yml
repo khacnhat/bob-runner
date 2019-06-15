@@ -1,0 +1,41 @@
+
+version: '2.2'
+
+services:
+
+  runner-client:
+    build:
+      context: test_client
+    user: nobody
+    image: cyberdojo/runner-client
+    init: true
+    container_name: test-runner-client
+    read_only: true
+    tmpfs: /tmp
+    restart: 'no'
+    depends_on:
+      - runner-server
+    ports:
+      - 4598:4598 # for demo
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  runner-server:
+    build:
+      context: .
+      args:
+        - SHA
+    user: root
+    image: cyberdojo/runner
+    init: true
+    container_name: test-runner-server
+    ports:
+      - 4597:4597
+    read_only: true
+    tmpfs: /tmp
+    restart: 'no'
+    volumes:
+      - ./test_server:/app/test:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - CIRCLECI # turn off known warning on CircleCI
